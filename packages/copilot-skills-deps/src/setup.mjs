@@ -24,7 +24,7 @@ export function setup() {
       // Still ensure .gitignore is updated
       const repoRoot = findRepoRoot(process.cwd());
       if (repoRoot) {
-        ensureGitignore(repoRoot, [".npmrc"]);
+        ensureGitignore(repoRoot, [".npmrc", "**/skills/*/scripts/node_modules"]);
       }
       
       return true;
@@ -77,7 +77,7 @@ function configureNpmrc(npmrcPath, token) {
     // Update .gitignore
     const repoRoot = findRepoRoot(process.cwd());
     if (repoRoot) {
-      ensureGitignore(repoRoot, [".npmrc"]);
+      ensureGitignore(repoRoot, [".npmrc", "**/skills/*/scripts/node_modules"]);
     }
 
     return true;
