@@ -15,7 +15,7 @@ import { isMarkerStale, touchMarker } from "./marker.mjs";
  * @returns {boolean} - True if successful
  */
 export function ensure(packageJsonPath, options = {}) {
-  const { maxAgeDays = 7 } = options;
+  const { maxAgeDays = parseInt(process.env.SKILL_DEPS_MAX_AGE, 10) || 7 } = options;
   const absPath = resolve(packageJsonPath);
   
   if (!existsSync(absPath)) {
