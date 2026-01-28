@@ -1,0 +1,39 @@
+{
+  "name": "@varasto/copilot-skills-deps",
+  "version": "1.0.0",
+  "description": "CLI for managing npm dependencies in Agent Skills",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "copilot-skills-deps": "bin/cli.mjs"
+  },
+  "main": "./src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "agent-skills",
+    "copilot",
+    "npm",
+    "dependencies",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/varasto/npm.git",
+    "directory": "packages/copilot-skills-deps"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

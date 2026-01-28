@@ -1,0 +1,11 @@
+{
+  "name": "@varasto/npm",
+  "private": true,
+  "description": "Public npm packages",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
