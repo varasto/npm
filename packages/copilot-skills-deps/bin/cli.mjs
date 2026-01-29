@@ -29,6 +29,10 @@ Options:
   --max-age <days> Days before marker is stale (default: 7, for ensure)
   --help, -h       Show this help
 
+Environment variables:
+  SKILL_UPDATE_CHECK_DAYS   Default max-age in days (default: 7)
+  GITHUB_TOKEN         Token for GitHub Packages auth
+
 Examples:
   copilot-skills-deps setup
   copilot-skills-deps install --npm ./scripts/package.json
