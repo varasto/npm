@@ -5,31 +5,18 @@
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { findRepoRoot, ensureGitignore } from "./utils.mjs";
 
 /**
  * Configure npm auth for GitHub Packages
+ * 
+ * SECURITY: This stores the .npmrc file in the user's home directory (~/.npmrc)
+ * NOT in the repository. This prevents tokens from being committed to git.
+ * 
  * @returns {boolean} - True if successful
  */
 export function setup() {
   const home = process.env.HOME || process.env.USERPROFILE;
-  const npmrcPath = join(home, ".npmrc");
-
-  // Check if already configured
-  if (existsSync(npmrcPath)) {
-    const content = readFileSync(npmrcPath, "utf8");
-    if (content.includes("//npm.pkg.github.com/:_authToken")) {
-      console.log("✓ npm auth already configured");
-      
-      // Still ensure .gitignore is updated
-      const repoRoot = findRepoRoot(process.cwd());
-      if (repoRoot) {
-        ensureGitignore(repoRoot, [".npmrc"]);
-      }
-      
-      return true;
-    }
-  }
+  const npmrcPath = join(home, ".npmrc"); // User home, NOT repo root
 
   // Get GitHub token
   const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
@@ -54,31 +41,54 @@ export function setup() {
 }
 
 /**
- * Write npmrc configuration
- * @param {string} npmrcPath - Path to .npmrc
+ * Write npmrc configuration to user home directory (NOT in repo for security)
+ * @param {string} npmrcPath - Path to .npmrc in user home directory
  * @param {string} token - GitHub token
  * @returns {boolean} - True if successful
  */
 function configureNpmrc(npmrcPath, token) {
   try {
-    const existing = existsSync(npmrcPath)
+    const content = existsSync(npmrcPath)
       ? readFileSync(npmrcPath, "utf8")
       : "";
 
-    const lines = [
-      "@varasto:registry=https://npm.pkg.github.com",
-      "//npm.pkg.github.com/:_authToken=" + token,
-    ];
+    // Define the configuration lines we want to add
+    const registryLine = "@varasto:registry=https://npm.pkg.github.com";
+    const authTokenPrefix = "//npm.pkg.github.com/:_authToken=";
+    const authTokenLine = authTokenPrefix + token;
 
-    const newContent = existing.trimEnd() + "\n" + lines.join("\n") + "\n";
+    // Split into lines and process
+    const lines = content.split("\n").filter(line => line.length > 0 || content.length === 0);
+    
+    // Check if registry line exists
+    let hasRegistry = false;
+    let tokenIndex = -1;
+    
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i] === registryLine) {
+        hasRegistry = true;
+      }
+      if (lines[i].startsWith(authTokenPrefix)) {
+        tokenIndex = i;
+      }
+    }
+    
+    // Add registry if missing
+    if (!hasRegistry) {
+      lines.push(registryLine);
+    }
+    
+    // Update or add auth token
+    if (tokenIndex >= 0) {
+      lines[tokenIndex] = authTokenLine;
+    } else {
+      lines.push(authTokenLine);
+    }
+    
+    // Write back
+    const newContent = lines.join("\n") + "\n";
     writeFileSync(npmrcPath, newContent);
     console.log("✓ npm auth configured in ~/.npmrc");
-
-    // Update .gitignore
-    const repoRoot = findRepoRoot(process.cwd());
-    if (repoRoot) {
-      ensureGitignore(repoRoot, [".npmrc"]);
-    }
 
     return true;
   } catch (error) {
