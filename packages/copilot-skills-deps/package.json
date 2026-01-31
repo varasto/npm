@@ -1,6 +1,6 @@
 {
   "name": "@varasto/copilot-skills-deps",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI for managing npm dependencies in Agent Skills",
   "type": "module",
   "license": "MIT",
